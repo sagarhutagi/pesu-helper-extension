@@ -1,5 +1,5 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 3,
   "name": "PESU PDF Helper",
   "version": "1.0",
   "description": "Helps manage PDF notes from the PESU Academy website.",
