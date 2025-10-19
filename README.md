@@ -4,7 +4,11 @@ A browser extension designed to enhance the learning experience on the PESU Acad
 
 This extension solves the common frustration of the embedded PDF viewer, giving you full control over your study materials with a clean, modern interface.
 
-## _(Suggestion: Take a screenshot of your popup menu in action, add it to the repository, and update the link below!)_
+## Screenshots
+<img width="303" height="150" alt="Screenshot From 2025-10-19 21-15-52" src="https://github.com/user-attachments/assets/3f34c4b2-bf86-4797-80fd-4d59a925c926" />
+<br>
+<img width="313" height="183" alt="image" src="https://github.com/user-attachments/assets/b5b9ab2e-7bcc-4201-b7f7-a48ecb9d2094" />
+
 
 ## ✨ Features
 
