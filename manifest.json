@@ -1,0 +1,23 @@
+{
+  "manifest_version": 1,
+  "name": "PESU PDF Helper",
+  "version": "1.0",
+  "description": "Helps manage PDF notes from the PESU Academy website.",
+  "permissions": [
+    "storage",
+    "downloads",
+    "scripting",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "*://*.pesuacademy.com/*"
+  ],
+  "action": {
+    "default_icon": "icon48.png",
+    "default_title": "PESU PDF Helper",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
