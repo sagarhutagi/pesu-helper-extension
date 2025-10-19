@@ -76,4 +76,4 @@ Since this extension is not on the Chrome Web Store, you can load it locally in 
 
 ## ⚖️ License
 
-This project is licensed under the MIT License.
+This project currently has no license.
