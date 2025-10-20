@@ -6,27 +6,20 @@ document.addEventListener("DOMContentLoaded", () => {
       currentTab.url &&
       currentTab.url.includes("pesuacademy.com")
     ) {
+      // Show the simplified menu view
       document.getElementById("menuView").style.display = "block";
-      document
-        .getElementById("btnNewTab")
-        .addEventListener("click", () => sendAction("newTab"));
-      document
-        .getElementById("btnDownload")
-        .addEventListener("click", () => sendAction("download"));
       document.getElementById("dashboardLink").addEventListener("click", () => {
         chrome.tabs.create({ url: "dashboard.html" });
       });
     } else {
+      // Show the "Open PESU" button
       document.getElementById("loginView").style.display = "block";
-      document
-        .getElementById("btnOpenPesu")
-        .addEventListener("click", () => sendAction("openLogin"));
+      // This listener will now find the button correctly
+      document.getElementById("btnOpenPesu").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "openLogin" }, () =>
+          window.close()
+        );
+      });
     }
   });
 });
-
-function sendAction(action) {
-  chrome.runtime.sendMessage({ action: action }, () => {
-    window.close();
-  });
-}

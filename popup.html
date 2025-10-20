@@ -5,22 +5,11 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <!-- View 1: Shown when you are on a PESU Academy page -->
     <div id="menuView" class="container" style="display: none;">
         <div class="header">
             <h3>PESU PDF Helper</h3>
         </div>
-        <div class="menu">
-            <button id="btnNewTab">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                <span>Open in New Tab</span>
-            </button>
-            <button id="btnDownload">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>Download Directly</span>
-            </button>
-        </div>
-        <div class="footer">
+        <div class="footer" style="border-top: none;">
             <a href="#" id="dashboardLink">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
                 <span>Dashboard</span>
@@ -28,7 +17,6 @@
         </div>
     </div>
 
-    <!-- View 2: Shown when you are NOT on a PESU Academy page -->
     <div id="loginView" class="container" style="display: none;">
         <div class="header">
             <h3>PESU PDF Helper</h3>

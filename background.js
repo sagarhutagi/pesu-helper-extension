@@ -6,7 +6,6 @@ function getCurrentDateString() {
   return today.toISOString().split("T")[0]; // YYYY-MM-DD format
 }
 
-// This function gets injected into a PESU page to find info.
 function getPageInfo() {
   const info = {
     pdfUrl: null,
@@ -19,7 +18,6 @@ function getPageInfo() {
     if (iframe && iframe.src) {
       info.pdfUrl = iframe.src.split("#")[0] + ".pdf";
     }
-
     const breadcrumbDiv = document.querySelector(".cmc_breadcrum");
     if (breadcrumbDiv) {
       const subjectElement = breadcrumbDiv.querySelector("a:nth-of-type(2)");
@@ -27,7 +25,6 @@ function getPageInfo() {
         const subjectParts = subjectElement.textContent.trim().split(":");
         info.subject = (subjectParts[1] || subjectParts[0]).trim();
       }
-
       const childNodes = breadcrumbDiv.childNodes;
       for (let i = childNodes.length - 1; i >= 0; i--) {
         const node = childNodes[i];
@@ -51,26 +48,6 @@ function openInNewTab(url) {
 }
 function downloadDirectly(url, filename) {
   chrome.downloads.download({ url: url, filename: filename });
-}
-
-// --- Main Logic to Handle PDF Actions ---
-async function handlePdfAction(tab) {
-  const results = await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    function: getPageInfo,
-  });
-  const pageInfo = results && results[0] ? results[0].result : null;
-
-  if (pageInfo && pageInfo.pdfUrl) {
-    const action = await new Promise((resolve) =>
-      chrome.runtime.sendMessage({ action: "getAction" }, resolve)
-    );
-    if (action === "download") {
-      downloadDirectly(pageInfo.pdfUrl, pageInfo.filename);
-    } else {
-      openInNewTab(pageInfo.pdfUrl);
-    }
-  }
 }
 
 // --- Event Listeners ---
@@ -125,7 +102,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         function: getPageInfo,
       });
       const pageInfo = results && results[0] ? results[0].result : null;
-
       if (pageInfo && pageInfo.subject && pageInfo.topic && pageInfo.pdfUrl) {
         const { lastReadTopics } = await chrome.storage.local.get({
           lastReadTopics: {},
@@ -137,6 +113,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
           subject: pageInfo.subject,
         };
         await chrome.storage.local.set({ lastReadTopics });
+        chrome.tabs.sendMessage(tabId, {
+          action: "showTopicSavedNotification",
+        });
       }
     } catch (error) {
       console.log("Could not process this page.", error.message);
@@ -148,20 +127,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   (async () => {
     if (request.action === "openLogin") {
       await chrome.tabs.create({ url: PESU_ACADEMY_URL });
-    } else if (request.action) {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
+    } else if (
+      request.action === "openPdfInNewTab" ||
+      request.action === "downloadPdf"
+    ) {
+      const tab = sender.tab;
       if (tab) {
-        // Simplified handlePdfAction call
         const results = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           function: getPageInfo,
         });
         const pageInfo = results && results[0] ? results[0].result : null;
         if (pageInfo && pageInfo.pdfUrl) {
-          if (request.action === "download") {
+          if (request.action === "downloadPdf") {
             downloadDirectly(pageInfo.pdfUrl, pageInfo.filename);
           } else {
             openInNewTab(pageInfo.pdfUrl);
@@ -190,7 +168,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     });
     const pageInfo = results && results[0] ? results[0].result : null;
     if (pageInfo && pageInfo.pdfUrl) {
-      openInNewTab(pageInfo.pdfUrl); // Default is always new tab
+      openInNewTab(pageInfo.pdfUrl);
     }
   }
 });

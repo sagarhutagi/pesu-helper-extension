@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PESU PDF Helper",
-  "version": "8.0",
+  "version": "9.1",
   "description": "A personal dashboard to track study time and manage PESU Academy notes.",
   "permissions": [
     "storage",
@@ -21,5 +21,13 @@
   },
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.pesuacademy.com/Academy/s/studentProfilePESU*"],
+      "js": ["content_script.js"],
+      "css": ["content_style.css"],
+      "all_frames": true
+    }
+  ]
 }
