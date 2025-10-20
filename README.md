@@ -63,4 +63,4 @@ As this is a local development extension, you can load it directly into any Chro
 
 ## ⚖️ License
 
-This project is licensed under the MIT License.
+This project don't have any license.
