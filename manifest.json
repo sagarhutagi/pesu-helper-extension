@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "PESU PDF Helper",
-  "version": "9.1",
-  "description": "A personal dashboard to track study time and manage PESU Academy notes.",
+  "version": "10.1",
+  "description": "A personal dashboard with a progress tracker for PESU Academy.",
   "permissions": [
     "storage",
     "downloads",

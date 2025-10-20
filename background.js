@@ -2,8 +2,15 @@ const PESU_ACADEMY_URL = "https://www.pesuacademy.com/Academy/";
 
 // --- Helper Functions ---
 function getCurrentDateString() {
-  const today = new Date();
-  return today.toISOString().split("T")[0]; // YYYY-MM-DD format
+  return new Date().toISOString().split("T")[0];
+}
+
+function isStudyPage(url) {
+  if (!url) return false;
+  return (
+    url.includes("studentProfilePESU") ||
+    url.includes("referenceMeterials/downloadslidecoursedoc")
+  );
 }
 
 function getPageInfo() {
@@ -42,6 +49,24 @@ function getPageInfo() {
   return info;
 }
 
+// **THIS IS THE MISSING FUNCTION**
+function scrapeCoursesFunc() {
+  const subjectRows = document.querySelectorAll(
+    'tr[id^="rowWiseCourseContent_"]'
+  );
+  const subjects = [];
+  subjectRows.forEach((row) => {
+    const titleElement = row.querySelector("td:nth-child(2)");
+    if (titleElement) {
+      let subjectName = titleElement.textContent
+        .trim()
+        .replace(/\s*integrated with lab/i, "");
+      subjects.push(subjectName);
+    }
+  });
+  return [...new Set(subjects)];
+}
+
 // --- Action Functions ---
 function openInNewTab(url) {
   chrome.tabs.create({ url: url });
@@ -53,7 +78,7 @@ function downloadDirectly(url, filename) {
 // --- Event Listeners ---
 chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
-    if (tab && tab.url && tab.url.includes("pesuacademy.com")) {
+    if (tab && isStudyPage(tab.url)) {
       chrome.storage.local.set({ sessionStart: Date.now() });
     } else {
       chrome.storage.local.get({ sessionStart: null, timeData: {} }, (data) => {
@@ -74,28 +99,23 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 chrome.alarms.create("timeSaver", { delayInMinutes: 1, periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === "timeSaver") {
-    const { sessionStart, timeData } = await chrome.storage.local.get({
-      sessionStart: null,
-      timeData: {},
+    const tabs = await chrome.tabs.query({
+      url: [
+        "*://*.pesuacademy.com/Academy/s/studentProfilePESU*",
+        "*://*.pesuacademy.com/Academy/a/referenceMeterials/downloadslidecoursedoc/*",
+      ],
     });
-    if (sessionStart) {
-      const duration = Math.round((Date.now() - sessionStart) / 1000);
+    if (tabs.length > 0) {
+      const { timeData } = await chrome.storage.local.get({ timeData: {} });
       const today = getCurrentDateString();
-      timeData[today] = (timeData[today] || 0) + duration;
-      await chrome.storage.local.set({
-        timeData: timeData,
-        sessionStart: Date.now(),
-      });
+      timeData[today] = (timeData[today] || 0) + 60;
+      await chrome.storage.local.set({ timeData });
     }
   }
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (
-    changeInfo.status === "complete" &&
-    tab.url &&
-    tab.url.includes("pesuacademy.com/Academy/s/studentProfilePESU")
-  ) {
+  if (changeInfo.status === "complete" && isStudyPage(tab.url)) {
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -123,9 +143,49 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender) => {
   (async () => {
-    if (request.action === "openLogin") {
+    if (request.action === "syncSubjectsFromPage") {
+      const [tab] = await chrome.tabs.query({
+        url: "*://*.pesuacademy.com/Academy/s/studentProfile*",
+      });
+      if (tab) {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          function: scrapeCoursesFunc,
+        });
+        const subjects = results[0].result;
+        if (subjects && subjects.length > 0) {
+          const { progressData } = await chrome.storage.local.get({
+            progressData: {},
+          });
+          for (const subject of subjects) {
+            if (!progressData[subject]) {
+              progressData[subject] = {};
+              for (let i = 1; i <= 4; i++) {
+                progressData[subject][`Unit ${i}`] = {
+                  theory: false,
+                  numericals: false,
+                  revision1: false,
+                  revision2: false,
+                };
+              }
+            }
+          }
+          await chrome.storage.local.set({ progressData });
+          const [dashboardTab] = await chrome.tabs.query({
+            url: chrome.runtime.getURL("dashboard.html"),
+          });
+          if (dashboardTab) {
+            chrome.tabs.sendMessage(dashboardTab.id, {
+              action: "syncComplete",
+            });
+          }
+        }
+      } else {
+        console.error("Could not find 'My Courses' tab.");
+      }
+    } else if (request.action === "openLogin") {
       await chrome.tabs.create({ url: PESU_ACADEMY_URL });
     } else if (
       request.action === "openPdfInNewTab" ||
