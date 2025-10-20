@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PESU Helper Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Study Dashboard</h1>
+            <p>Your personalized hub for PESU Academy</p>
+        </header>
+
+        <main>
+            <section class="card time-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <h2>Time Today</h2>
+                </div>
+                <div id="timeDisplay" class="card-content">00:00:00</div>
+            </section>
+
+            <section class="card history-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                    <h2>Daily History</h2>
+                </div>
+                <div id="historyList" class="card-content">
+                    <p>No history yet.</p>
+                </div>
+            </section>
+
+            <section class="card topics-card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <h2>Recent Topics with PDFs</h2>
+                </div>
+                <div id="topicList" class="card-content">
+                    <p>Loading topics...</p>
+                </div>
+            </section>
+            
+            <section class="card about-card">
+                 <div class="about-grid">
+                    <div class="about-column developer-info">
+                        <img src="your_photo.png" alt="Developer Photo" class="profile-photo">
+                        <h3>About the Developer</h3>
+                        <p>Hi, I'm [Your Name], the creator of this extension. I'm passionate about building tools that make student life easier. Connect with me on [Your GitHub/LinkedIn]!</p>
+                    </div>
+                    <div class="about-column extension-info">
+                        <h3>About the Extension</h3>
+                        <p>This dashboard is your personal study companion. It helps you track your time and quickly jump back into your last-read topics, keeping you organized and focused.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>

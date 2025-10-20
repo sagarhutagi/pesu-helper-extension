@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "PESU PDF Helper",
-  "version": "1.0",
-  "description": "Helps manage PDF notes from the PESU Academy website.",
+  "version": "8.0",
+  "description": "A personal dashboard to track study time and manage PESU Academy notes.",
   "permissions": [
     "storage",
     "downloads",
     "scripting",
-    "contextMenus"
+    "contextMenus",
+    "tabs",
+    "alarms"
   ],
   "host_permissions": [
     "*://*.pesuacademy.com/*"
