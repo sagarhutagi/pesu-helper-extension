@@ -17,8 +17,6 @@ It addresses common workflow frustrations by providing integrated PDF controls, 
 - **Seamless Topic Saving:** When you visit a page with a PDF, the topic is automatically saved to your dashboard, and a sleek, non-intrusive notification appears to confirm it.
 - **Intelligent File Naming:** When downloading, PDFs are automatically named after the specific **topic** (e.g., `Basic concepts of ecosystem.pdf`), not the generic subject, keeping your notes perfectly organized.
 
----
-
 ## PESU Helper Screenshot
 
 <img width="303" height="150" alt="Screenshot From 2025-10-19 21-15-52" src="https://github.com/user-attachments/assets/3f34c4b2-bf86-4797-80fd-4d59a925c926" />
@@ -49,15 +47,11 @@ As this is a local development extension, you can load it directly into any Chro
 5.  **Ready to Go!**
     - The "PESU PDF Helper" icon will appear in your browser's toolbar. You may need to click the puzzle piece icon to pin it for easy access.
 
----
-
 ## 🚀 How to Use
 
 1.  **Accessing PDFs:** Navigate to a course page on PESU Academy and click on a topic link. The green icon buttons for "Open in New Tab" and "Download" will appear in the top-right corner of that PDF's section.
 2.  **Accessing the Dashboard:** Left-click the extension's icon in your toolbar while on a PESU Academy page and click the "Dashboard" link.
 3.  **Opening PESU Academy:** When on any other website (e.g., Google), left-click the extension icon and click "Open PESU Academy" to be taken directly to the site.
-
----
 
 ## 📂 Project Structure
 
@@ -66,8 +60,6 @@ As this is a local development extension, you can load it directly into any Chro
 - `content_script.js` / `content_style.css`: The scripts and styles injected directly onto the PESU Academy page to create the buttons and notifications.
 - `dashboard.html` / `dashboard.css` / `dashboard.js`: The files that create the modern, data-driven personal study dashboard.
 - `popup.html` / `popup.css` / `popup.js`: The files for the simple, context-aware popup menu.
-
----
 
 ## ⚖️ License
 
