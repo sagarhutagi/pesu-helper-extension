@@ -4,13 +4,6 @@ An all-in-one browser extension designed to supercharge the learning experience 
 
 It addresses common workflow frustrations by providing integrated PDF controls, automatic organization, and insightful study habit tracking.
 
-![PESU Helper Screenshot]
-
-<img width="303" height="150" alt="Screenshot From 2025-10-19 21-15-52" src="https://github.com/user-attachments/assets/3f34c4b2-bf86-4797-80fd-4d59a925c926" />
-<br>
-<img width="313" height="183" alt="image" src="https://github.com/user-attachments/assets/b5b9ab2e-7bcc-4201-b7f7-a48ecb9d2094" />
----
-
 ## ✨ Features
 
 - **Integrated PDF Controls:** "Open in New Tab" and "Download" buttons appear directly on the webpage next to the PDF you're viewing, providing instant access without leaving the page.
@@ -25,6 +18,12 @@ It addresses common workflow frustrations by providing integrated PDF controls, 
 - **Intelligent File Naming:** When downloading, PDFs are automatically named after the specific **topic** (e.g., `Basic concepts of ecosystem.pdf`), not the generic subject, keeping your notes perfectly organized.
 
 ---
+
+## PESU Helper Screenshot
+
+<img width="303" height="150" alt="Screenshot From 2025-10-19 21-15-52" src="https://github.com/user-attachments/assets/3f34c4b2-bf86-4797-80fd-4d59a925c926" />
+<br>
+<img width="313" height="183" alt="image" src="https://github.com/user-attachments/assets/b5b9ab2e-7bcc-4201-b7f7-a48ecb9d2094" />
 
 ## 🛠️ Installation
 
