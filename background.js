@@ -2,14 +2,15 @@ const PESU_ACADEMY_URL = "https://www.pesuacademy.com/Academy/";
 
 // --- Helper Functions ---
 function getCurrentDateString() {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
 }
 
 function isStudyPage(url) {
   if (!url) return false;
+  // Only track time on actual topic pages or direct PDF views
   return (
     url.includes("studentProfilePESU") ||
-    url.includes("referenceMeterials/downloadslidecoursedoc")
+    url.includes("referenceMeterials/downloadslidecoursoc")
   );
 }
 
@@ -49,7 +50,6 @@ function getPageInfo() {
   return info;
 }
 
-// **THIS IS THE MISSING FUNCTION**
 function scrapeCoursesFunc() {
   const subjectRows = document.querySelectorAll(
     'tr[id^="rowWiseCourseContent_"]'
@@ -99,46 +99,68 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 chrome.alarms.create("timeSaver", { delayInMinutes: 1, periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === "timeSaver") {
-    const tabs = await chrome.tabs.query({
-      url: [
-        "*://*.pesuacademy.com/Academy/s/studentProfilePESU*",
-        "*://*.pesuacademy.com/Academy/a/referenceMeterials/downloadslidecoursedoc/*",
-      ],
+    const { sessionStart, timeData } = await chrome.storage.local.get({
+      sessionStart: null,
+      timeData: {},
     });
-    if (tabs.length > 0) {
-      const { timeData } = await chrome.storage.local.get({ timeData: {} });
+    if (sessionStart) {
+      const duration = Math.round((Date.now() - sessionStart) / 1000);
       const today = getCurrentDateString();
-      timeData[today] = (timeData[today] || 0) + 60;
-      await chrome.storage.local.set({ timeData });
+      timeData[today] = (timeData[today] || 0) + duration;
+      await chrome.storage.local.set({
+        timeData: timeData,
+        sessionStart: Date.now(),
+      }); // Reset start for next interval
     }
   }
 });
 
+// CORRECTED onUpdated listener
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete" && isStudyPage(tab.url)) {
-    try {
-      const results = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: getPageInfo,
-      });
-      const pageInfo = results && results[0] ? results[0].result : null;
-      if (pageInfo && pageInfo.subject && pageInfo.topic && pageInfo.pdfUrl) {
-        const { lastReadTopics } = await chrome.storage.local.get({
-          lastReadTopics: {},
+  if (changeInfo.status === "complete" && tab?.url) {
+    // Check tab.url exists
+    if (isStudyPage(tab.url)) {
+      chrome.storage.local.set({ sessionStart: Date.now() });
+      try {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId: tabId },
+          function: getPageInfo,
         });
-        lastReadTopics[pageInfo.subject] = {
-          topic: pageInfo.topic,
-          url: tab.url,
-          pdfUrl: pageInfo.pdfUrl,
-          subject: pageInfo.subject,
-        };
-        await chrome.storage.local.set({ lastReadTopics });
-        chrome.tabs.sendMessage(tabId, {
-          action: "showTopicSavedNotification",
+        const pageInfo = results && results[0] ? results[0].result : null;
+        if (pageInfo && pageInfo.subject && pageInfo.topic && pageInfo.pdfUrl) {
+          const { lastReadTopics } = await chrome.storage.local.get({
+            lastReadTopics: {},
+          });
+          lastReadTopics[pageInfo.subject] = {
+            topic: pageInfo.topic,
+            url: tab.url,
+            pdfUrl: pageInfo.pdfUrl,
+            subject: pageInfo.subject,
+          };
+          await chrome.storage.local.set({ lastReadTopics });
+          chrome.tabs
+            .sendMessage(tabId, { action: "showTopicSavedNotification" })
+            .catch((e) =>
+              console.log("Error sending notification message:", e)
+            ); // Added catch
+        }
+      } catch (error) {
+        console.log("Could not process this page.", error.message);
+      }
+    } else {
+      const { sessionStart, timeData } = await chrome.storage.local.get({
+        sessionStart: null,
+        timeData: {},
+      });
+      if (sessionStart) {
+        const duration = Math.round((Date.now() - sessionStart) / 1000);
+        const today = getCurrentDateString();
+        timeData[today] = (timeData[today] || 0) + duration;
+        await chrome.storage.local.set({
+          timeData: timeData,
+          sessionStart: null,
         });
       }
-    } catch (error) {
-      console.log("Could not process this page.", error.message);
     }
   }
 });
@@ -154,13 +176,15 @@ chrome.runtime.onMessage.addListener((request, sender) => {
           target: { tabId: tab.id },
           function: scrapeCoursesFunc,
         });
-        const subjects = results[0].result;
+        const subjects = results?.[0]?.result;
         if (subjects && subjects.length > 0) {
           const { progressData } = await chrome.storage.local.get({
             progressData: {},
           });
+          let updated = false;
           for (const subject of subjects) {
             if (!progressData[subject]) {
+              updated = true;
               progressData[subject] = {};
               for (let i = 1; i <= 4; i++) {
                 progressData[subject][`Unit ${i}`] = {
@@ -172,7 +196,10 @@ chrome.runtime.onMessage.addListener((request, sender) => {
               }
             }
           }
-          await chrome.storage.local.set({ progressData });
+          if (updated) {
+            await chrome.storage.local.set({ progressData });
+          }
+          // Always send syncComplete to update dashboard UI even if no new subjects added
           const [dashboardTab] = await chrome.tabs.query({
             url: chrome.runtime.getURL("dashboard.html"),
           });
@@ -181,9 +208,24 @@ chrome.runtime.onMessage.addListener((request, sender) => {
               action: "syncComplete",
             });
           }
+        } else {
+          console.warn("PESU Helper: No subjects found on page.");
+          // Optionally send a message back to dashboard to indicate failure/no subjects
         }
       } else {
-        console.error("Could not find 'My Courses' tab.");
+        console.error(
+          "PESU Helper: Could not find 'My Courses' tab. Please open it first."
+        );
+        // Optionally send a message back to dashboard to indicate failure
+        const [dashboardTab] = await chrome.tabs.query({
+          url: chrome.runtime.getURL("dashboard.html"),
+        });
+        if (dashboardTab) {
+          chrome.tabs.sendMessage(dashboardTab.id, {
+            action: "syncFailed",
+            reason: "My Courses tab not found.",
+          });
+        }
       }
     } else if (request.action === "openLogin") {
       await chrome.tabs.create({ url: PESU_ACADEMY_URL });
@@ -204,11 +246,15 @@ chrome.runtime.onMessage.addListener((request, sender) => {
           } else {
             openInNewTab(pageInfo.pdfUrl);
           }
+        } else {
+          console.error(
+            "PESU Helper: Could not get PDF info from page to perform action."
+          );
         }
       }
     }
   })();
-  return true;
+  return true; // Indicate async response
 });
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -222,13 +268,31 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "pesuPdfHelper") {
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      function: getPageInfo,
-    });
-    const pageInfo = results && results[0] ? results[0].result : null;
-    if (pageInfo && pageInfo.pdfUrl) {
-      openInNewTab(pageInfo.pdfUrl);
+    // Ensure tab object is valid before proceeding
+    if (tab?.id) {
+      try {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          function: getPageInfo,
+        });
+        const pageInfo = results && results[0] ? results[0].result : null;
+        if (pageInfo && pageInfo.pdfUrl) {
+          openInNewTab(pageInfo.pdfUrl);
+        } else {
+          console.error(
+            "PESU Helper: Could not get PDF info for context menu action."
+          );
+        }
+      } catch (error) {
+        console.error(
+          "PESU Helper: Error executing script from context menu:",
+          error
+        );
+      }
+    } else {
+      console.error(
+        "PESU Helper: Invalid tab object received from context menu click."
+      );
     }
   }
 });

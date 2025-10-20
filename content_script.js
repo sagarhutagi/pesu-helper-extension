@@ -1,3 +1,4 @@
+// --- Helper Functions ---
 function createNotificationToast() {
   let toast = document.getElementById("pesu-helper-toast");
   if (!toast) {
@@ -10,12 +11,15 @@ function createNotificationToast() {
 }
 
 function showTopicSavedNotification(toastElement) {
-  toastElement.classList.add("show");
-  setTimeout(() => {
-    toastElement.classList.remove("show");
-  }, 3000);
+  if (toastElement) {
+    toastElement.classList.add("show");
+    setTimeout(() => {
+      toastElement.classList.remove("show");
+    }, 3000);
+  }
 }
 
+// --- Button Injection Logic ---
 function injectPdfButtons(clickedLink) {
   const container = clickedLink.closest(".link-preview");
   if (!container || container.querySelector(".pesu-helper-button-container")) {
@@ -47,22 +51,29 @@ function injectPdfButtons(clickedLink) {
     });
 }
 
-const toast = createNotificationToast();
-chrome.runtime.onMessage.addListener((request) => {
-  if (request.action === "showTopicSavedNotification") {
-    showTopicSavedNotification(toast);
-  }
-});
+// --- Main Execution ---
+let toast; // Declare toast here to make it accessible
 
-document.addEventListener(
-  "click",
-  (event) => {
-    const clickedLink = event.target.closest(
-      '.link-preview a[onclick*="loadIframe"]'
-    );
-    if (clickedLink) {
-      injectPdfButtons(clickedLink);
+// Only run if we are in the main frame, not the nested PDF frame
+if (window.self === window.top) {
+  toast = createNotificationToast();
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === "showTopicSavedNotification") {
+      showTopicSavedNotification(toast);
     }
-  },
-  true
-);
+  });
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const clickedLink = event.target.closest(
+        '.link-preview a[onclick*="loadIframe"]'
+      );
+      if (clickedLink) {
+        // Add a slight delay to allow iframe src to potentially update if needed
+        setTimeout(() => injectPdfButtons(clickedLink), 50);
+      }
+    },
+    true
+  );
+}

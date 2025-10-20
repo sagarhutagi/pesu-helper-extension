@@ -1,7 +1,6 @@
 .link-preview {
     position: relative;
 }
-
 .pesu-helper-button-container {
     position: absolute;
     top: 8px;
@@ -10,7 +9,6 @@
     display: flex;
     gap: 8px;
 }
-
 .pesu-helper-btn {
     display: flex;
     justify-content: center;
@@ -26,19 +24,9 @@
     transition: background-color 0.2s, transform 0.1s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
-
-.pesu-helper-btn:hover {
-    background-color: #218838;
-}
-
-.pesu-helper-btn:active {
-    transform: scale(0.92);
-}
-
-.pesu-helper-btn svg {
-    stroke: white;
-}
-
+.pesu-helper-btn:hover { background-color: #218838; }
+.pesu-helper-btn:active { transform: scale(0.92); }
+.pesu-helper-btn svg { stroke: white; }
 #pesu-helper-toast {
     position: fixed;
     bottom: 20px;
@@ -54,8 +42,4 @@
     opacity: 0;
     transition: transform 0.4s ease, opacity 0.4s ease;
 }
-
-#pesu-helper-toast.show {
-    transform: translate(-50%, 0);
-    opacity: 1;
-}
+#pesu-helper-toast.show { transform: translate(-50%, 0); opacity: 1; }
