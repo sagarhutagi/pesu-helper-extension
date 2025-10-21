@@ -154,8 +154,8 @@ function displayProgressTracker() {
         const unit = `Unit ${i}`;
         const unitData = subjectData[unit];
         unitsGridHTML += `<div class="unit-card" data-unit="${i}"><h4 class="unit-title">${unit}</h4><div class="task-list">`;
-        const tasks = ["theory", "numericals", "revision1", "revision2"];
-        const taskLabels = ["Theory", "Numericals", "Revision 1", "Revision 2"];
+        const tasks = ["theory", "Questions", "revision1", "revision2"];
+        const taskLabels = ["Theory", "Questions", "Revision 1", "Revision 2"];
         tasks.forEach((task, index) => {
           const isChecked = unitData[task] ? "checked" : "";
           unitsGridHTML += `<label><input type="checkbox" data-subject="${subjectName}" data-unit="${unit}" data-task="${task}" ${isChecked}> ${taskLabels[index]}</label>`;
