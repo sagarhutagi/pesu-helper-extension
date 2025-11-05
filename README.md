@@ -1,4 +1,4 @@
-# PESU PDF Helper
+# PESU Helper
 
 An all-in-one browser extension designed to supercharge the learning experience on the PESU Academy website. This tool transforms from a simple PDF utility into a comprehensive personal study dashboard.
 
